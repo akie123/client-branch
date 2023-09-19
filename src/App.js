@@ -12,6 +12,7 @@ function App() {
                 <Route path="/" element={<Signin/>}/>
                 <Route path="/agent" element={<Client/>}/>
                 <Route path="/sendQuery" element={<SendQuery/>}/>
+                <Route path="*" element={<h1>Not Found</h1>}/>
             </Routes>
         </BrowserRouter>
 

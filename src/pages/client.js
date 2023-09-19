@@ -1,10 +1,9 @@
-
 import React from "react"
 import io from 'socket.io-client';
 import axios from 'axios';
 import Swal from 'sweetalert2'
+import CannedMessage from "./cannedMsg"
 import { useState, useEffect } from 'react';
-
 import {
     MDBNavbar,
     MDBNavbarNav,
@@ -15,8 +14,9 @@ import {
     MDBIcon,
     MDBInput,MDBBtn,MDBSpinner
 } from 'mdb-react-ui-kit';
-import {Table, Modal, Button, Form, Input ,Tag} from 'antd';
+import {Table, Modal, Button, Form, Input ,Tag, Select} from 'antd';
 const { TextArea } = Input;
+const { Option } = Select;
 
 
 const Client = () => {
@@ -70,10 +70,10 @@ const Client = () => {
     const [msg, setMsg] = useState('');
     const [response, setResponse] = useState('');
     const [msgId,setMsgId] = useState('');
-
+    const [selectedMessageType, setSelectedMessageType] = useState("");
+    const [selectedMessage, setSelectedMessage] = useState("");
 
     const showModal1 = (msg) => {
-        console.log(msg);
         setMsg(msg.message)
         setIsModalOpen1(true);
     };
@@ -121,6 +121,8 @@ const Client = () => {
         }
     };
 
+
+
     const handleDelete = (messageId) => {
         // Filter out the deleted message from both message and originalMessages states
         const updatedMessages = message.filter((msg) => msg._id!== messageId);
@@ -128,6 +130,15 @@ const Client = () => {
 
         setmessage(updatedMessages);
         setOriginalMessages(updatedOriginalMessages);
+    };
+    const handleMessageTypeChange = (value) => {
+        setSelectedMessageType(value);
+        setSelectedMessage(""); // Clear the selected message
+    };
+
+    const handleSelectedMessageChange = (value) => {
+        setSelectedMessage(value);
+        setResponse(value); // Automatically set the response based on selected message
     };
 
 
@@ -165,23 +176,52 @@ const Client = () => {
             <Modal title="Message/Query" open={isModalOpen1}  okButtonProps={{hidden:true}} cancelButtonProps={{hidden:true}}   onCancel={handleCancel1} width={1000} bodyStyle={{height:"250px"}}>
                 <p style={{paddingTop:"10px"}}>{msg}</p>
             </Modal>
-            <Modal title="Message/Query" open={isModalOpen2}  okButtonProps={{hidden:true}} cancelButtonProps={{hidden:true}}   onCancel={handleCancel1} width={700} bodyStyle={{height:"250px"}}>
+            <Modal title="Message/Query" open={isModalOpen2}  okButtonProps={{hidden:true}} cancelButtonProps={{hidden:true}}   onCancel={handleCancel1} width={700} bodyStyle={{height:"350px"}}>
                <br/>
                 <Form
                     name="basic"
-
                     style={{
                         maxWidth: 600,
                     }}
                     initialValues={{
                         remember: true,
                     }}
-
                     autoComplete="off"
                 >
+                    <Form.Item label="Canned Message Type">
+                        <Select
+                            value={selectedMessageType}
+                            onChange={handleMessageTypeChange}
+                        >
+                            <Option value="">Select a message type</Option>
+                            {Object.keys(CannedMessage).map((messageType) => (
+                                <Option key={messageType} value={messageType}>
+                                    {messageType}
+                                </Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+
+                    {selectedMessageType && (
+                        <Form.Item label="Canned Message">
+                            <Select
+                                value={selectedMessage}
+                                onChange={handleSelectedMessageChange}
+                            >
+                                <Option value="">Select a message</Option>
+                                {CannedMessage[selectedMessageType].map((message, index) => (
+                                    <Option key={index} value={message}>
+                                        {message}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    )}
+
                     <Form.Item>
                         <TextArea rows={5} value={response} onChange={(e) => setResponse(e.target.value)} />
                     </Form.Item>
+
 
                     <Form.Item>
                         <Button type="primary" onClick={sendResponse}>

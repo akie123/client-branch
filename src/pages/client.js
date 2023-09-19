@@ -2,8 +2,6 @@
 import React from "react"
 import io from 'socket.io-client';
 import axios from 'axios';
-
-const socket = io.connect('http://localhost:5000');
 import { useState, useEffect } from 'react';
 
 import {
@@ -14,9 +12,11 @@ import {
     MDBNavbarLink,
     MDBNavbarBrand,
     MDBIcon,
-    MDBInput,MDBBtn
+    MDBInput,MDBBtn,MDBSpinner
 } from 'mdb-react-ui-kit';
 import { Table } from 'antd';
+
+const socket = io.connect('http://localhost:5000');
 const columns = [
     {
         title: 'Id',
@@ -50,37 +50,45 @@ const columns = [
     },
 ];
 
-
-
-const data = [{
-    id: "1",
-    message: `Edward ${1}`,
-    priority: "High",
-},{
-    id: "1",
-    message: `Edward ${1}`,
-    priority: "High",
-}]
 const Client = () => {
-   
+    const [agentId,setagentId] = useState(localStorage.getItem("agentId"));
     const [message,setmessage] = useState([]);
+    const [originalMessages, setOriginalMessages] = useState([]);
+    const [loading, setLoading] = useState(true);
     useEffect(() =>{
 
-        axios.get('http://localhost:5000/getMessages/1').then((res) => {
-            console.log(res.data.messages);
+        axios.get(`http://localhost:5000/getMessages/${agentId}`).then((res) => {
             setmessage(res.data.messages);
+            setOriginalMessages(res.data.messages);
+            setLoading(false);
         }).catch((err) => { 
             console.error('Error fetching messages:', err);
         })
-        socket.emit('agentOnline', 1);
+        socket.emit('agentOnline', agentId);
         socket.on('messageAssigned', (msg) => {
-            setmessage([...message,msg]);
+            setmessage((prevMessages) => [...prevMessages, msg]);
+            setOriginalMessages((prevMessages) => [...prevMessages, msg]);
         })
        
     },[])
+    const handleSearch = (value) => {
+        const searchText = value.toLowerCase();
+        const filteredMessages = originalMessages.filter((msg) => {
+            const idMatch = msg.senderId.toLowerCase().includes(searchText);
+            const messageMatch = msg.message.toLowerCase().includes(searchText);
+            return idMatch || messageMatch;
+        });
+        setmessage(filteredMessages);
+    };
     return (
         <div >
             <MDBContainer fluid>
+                {loading ? ( // Conditionally render the loader spinner
+                    <div className='text-center' style={{ paddingTop: "25px" }}>
+                        <MDBSpinner grow color='primary' />
+                    </div>
+                ) : (
+                    <>
             <header>
                 <MDBNavbar  expand='lg' light bgColor='light'>
                     <MDBContainer fluid>
@@ -99,22 +107,21 @@ const Client = () => {
                 <div className='text-center' style={{
                     padding:"2%"
                 }}>
-                    {/*<h2 className='mb-3'>Welcome Back!</h2>*/}
+
                 </div>
             </header>
             <div style={{padding:"0 5% 0 5%"}}>
                 <div style={{width :"50%"}}>
-                    <MDBInput label='Search' id='typeText' type='text' />
+                    <MDBInput label='Search' id='typeText' type='text' onChange={(e) => handleSearch(e.target.value)}/>
                 </div>
-
-                <Table
-                    columns={columns}
-                    dataSource={message}
-                    style={{paddingTop:"25px"}}
-                />
-
+                    <Table
+                        columns={columns}
+                        dataSource={[...message]}
+                        style={{ paddingTop: "25px" }}
+                    />
             </div>
-
+                    </>
+                    )}
             </MDBContainer>
 
         </div>

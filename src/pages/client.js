@@ -2,6 +2,7 @@
 import React from "react"
 import io from 'socket.io-client';
 import axios from 'axios';
+import Swal from 'sweetalert2'
 import { useState, useEffect } from 'react';
 
 import {
@@ -14,47 +15,121 @@ import {
     MDBIcon,
     MDBInput,MDBBtn,MDBSpinner
 } from 'mdb-react-ui-kit';
-import { Table } from 'antd';
-
+import {Table, Modal, Button, Form, Input} from 'antd';
+const { TextArea } = Input;
 const socket = io.connect('http://localhost:5000');
-const columns = [
-    {
-        title: 'Id',
-        width: 100,
-        dataIndex: 'senderId',
-        key: 'senderId',
-    },
-    {
-        title: 'Message',
-        width: 200,
-        dataIndex: 'message',
-        key: 'message',
 
-    },
-    {
-        title: 'Priority',
-        dataIndex: 'priority',
-        key: 'priority',
-        width: 100,
-    },
-    {
-        title: 'Action',
-        key: 'operation',
-        fixed: 'right',
-        width: 100,
-        render: () =>  <><MDBBtn color='link' rounded size='sm'>
-            View Message
-        </MDBBtn><MDBBtn color='link' rounded size='sm'>
-            Send/FullFill Response
-        </MDBBtn></>,
-    },
-];
+
 
 const Client = () => {
+    const columns = [
+        {
+            title: 'Id',
+
+            width: 100,
+            dataIndex: 'senderId',
+            key: 'senderId',
+        },
+        {
+            title: 'Message',
+            width: 200,
+            dataIndex: 'message',
+            key: 'message',
+
+        },
+        {
+            title: 'Priority',
+            dataIndex: 'priority',
+            key: 'priority',
+            width: 100,
+        },
+        {
+            title: 'Action',
+            key: 'operation',
+            fixed: 'right',
+            width: 100,
+            render: (text, record) =>  <><MDBBtn color='link' rounded size='sm' onClick={()=>{
+                showModal1(record);}
+            }>
+                View Message/Query
+            </MDBBtn><MDBBtn color='link' rounded size='sm' onClick={()=>{
+                showModal2(record);}
+            }>>
+                Send/FullFill Response
+            </MDBBtn></>,
+        },
+    ];
+
     const [agentId,setagentId] = useState(localStorage.getItem("agentId"));
     const [message,setmessage] = useState([]);
     const [originalMessages, setOriginalMessages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isModalOpen1, setIsModalOpen1] = useState(false);
+    const [isModalOpen2, setIsModalOpen2] = useState(false);
+    const [msg, setMsg] = useState('');
+    const [response, setResponse] = useState('');
+    const [msgId,setMsgId] = useState('');
+
+
+    const showModal1 = (msg) => {
+        console.log(msg);
+        setMsg(msg.message)
+        setIsModalOpen1(true);
+    };
+
+
+    const handleCancel1 = () => {
+        setIsModalOpen1(false);
+        setIsModalOpen2(false);
+    };
+
+
+    const showModal2 = (msg) => {
+        setMsgId(msg._id)
+        setIsModalOpen2(true);
+    };
+
+    // Function to send response to the server
+    const sendResponse = () => {
+        if (msgId && response) {
+
+            axios.post('http://localhost:5000/response', {
+                messageId: msgId,
+                response: response,
+            })
+                .then((response) => {
+                    console.log('Response sent successfully', response);
+                    handleDelete(msgId);
+                    Swal.fire({
+                        title: 'Success!',
+                        icon: 'success',
+                        confirmButtonText: 'Okay'
+                    })
+                })
+                .catch((error) => {
+                    console.error('Error sending response', error);
+                    Swal.fire({
+                        title: 'Failed!',
+                        icon: 'error',
+                        confirmButtonText: 'Okay'
+                    })
+                });
+            setResponse('');
+            setMsgId('');
+            setIsModalOpen2(false);
+        }
+    };
+
+    const handleDelete = (messageId) => {
+        // Filter out the deleted message from both message and originalMessages states
+        const updatedMessages = message.filter((msg) => msg._id!== messageId);
+        const updatedOriginalMessages = originalMessages.filter((msg) => msg._id !== messageId);
+
+        setmessage(updatedMessages);
+        setOriginalMessages(updatedOriginalMessages);
+    };
+
+
     useEffect(() =>{
 
         axios.get(`http://localhost:5000/getMessages/${agentId}`).then((res) => {
@@ -82,6 +157,35 @@ const Client = () => {
     };
     return (
         <div >
+            <Modal title="Message/Query" open={isModalOpen1}  okButtonProps={{hidden:true}} cancelButtonProps={{hidden:true}}   onCancel={handleCancel1} width={1000} bodyStyle={{height:"250px"}}>
+                <p style={{paddingTop:"10px"}}>{msg}</p>
+            </Modal>
+            <Modal title="Message/Query" open={isModalOpen2}  okButtonProps={{hidden:true}} cancelButtonProps={{hidden:true}}   onCancel={handleCancel1} width={700} bodyStyle={{height:"250px"}}>
+               <br/>
+                <Form
+                    name="basic"
+
+                    style={{
+                        maxWidth: 600,
+                    }}
+                    initialValues={{
+                        remember: true,
+                    }}
+
+                    autoComplete="off"
+                >
+                    <Form.Item>
+                        <TextArea rows={5} value={response} onChange={(e) => setResponse(e.target.value)} />
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button type="primary" onClick={sendResponse}>
+                            Send
+                        </Button>
+                    </Form.Item>
+                </Form>
+
+            </Modal>
             <MDBContainer fluid>
                 {loading ? ( // Conditionally render the loader spinner
                     <div className='text-center' style={{ paddingTop: "25px" }}>

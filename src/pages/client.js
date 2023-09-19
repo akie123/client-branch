@@ -14,7 +14,7 @@ import {
     MDBIcon,
     MDBInput,MDBBtn,MDBSpinner
 } from 'mdb-react-ui-kit';
-import {Table, Modal, Button, Form, Input ,Tag, Select} from 'antd';
+import {Table, Modal, Button, Form, Input ,Tag, Select ,Result} from 'antd';
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -174,109 +174,125 @@ const Client = () => {
         setmessage(filteredMessages);
     };
     return (
-        <div >
-            <Modal title="Message/Query" open={isModalOpen1}  okButtonProps={{hidden:true}} cancelButtonProps={{hidden:true}}   onCancel={handleCancel1} width={1000} bodyStyle={{height:"250px"}}>
-                <p style={{paddingTop:"10px"}}>{msg}</p>
-            </Modal>
-            <Modal title="Respond Message/Query" open={isModalOpen2}  okButtonProps={{hidden:true}} cancelButtonProps={{hidden:true}}   onCancel={handleCancel1} width={700} bodyStyle={{height:"350px"}}>
-               <br/>
-                <Form
-                    name="basic"
-                    style={{
-                        maxWidth: 600,
-                    }}
-                    initialValues={{
-                        remember: true,
-                    }}
-                    autoComplete="off"
-                >
-                    <Form.Item label="Canned Message Type">
-                        <Select
-                            value={selectedMessageType}
-                            onChange={handleMessageTypeChange}
-                        >
-                            <Option value="">Select a message type</Option>
-                            {Object.keys(CannedMessage).map((messageType) => (
-                                <Option key={messageType} value={messageType}>
-                                    {messageType}
-                                </Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-
-                    {selectedMessageType && (
-                        <Form.Item label="Canned Message">
+        <>
+            { agentId === null && <Result
+                status="403"
+                title="403"
+                subTitle="Sorry, you are not authorized to access this page."
+                extra={<Button type="primary" onClick={()=>{
+                    window.location.href = "/";
+                }}>Back Home</Button>}
+            />}
+            {agentId !== null && <div>
+                <Modal title="Message/Query" open={isModalOpen1} okButtonProps={{hidden: true}}
+                       cancelButtonProps={{hidden: true}} onCancel={handleCancel1} width={1000}
+                       bodyStyle={{height: "250px"}}>
+                    <p style={{paddingTop: "10px"}}>{msg}</p>
+                </Modal>
+                <Modal title="Respond Message/Query" open={isModalOpen2} okButtonProps={{hidden: true}}
+                       cancelButtonProps={{hidden: true}} onCancel={handleCancel1} width={700}
+                       bodyStyle={{height: "350px"}}>
+                    <br/>
+                    <Form
+                        name="basic"
+                        style={{
+                            maxWidth: 600,
+                        }}
+                        initialValues={{
+                            remember: true,
+                        }}
+                        autoComplete="off"
+                    >
+                        <Form.Item label="Canned Message Type">
                             <Select
-                                value={selectedMessage}
-                                onChange={handleSelectedMessageChange}
+                                value={selectedMessageType}
+                                onChange={handleMessageTypeChange}
                             >
-                                <Option value="">Select a message</Option>
-                                {CannedMessage[selectedMessageType].map((message, index) => (
-                                    <Option key={index} value={message}>
-                                        {message}
+                                <Option value="">Select a message type</Option>
+                                {Object.keys(CannedMessage).map((messageType) => (
+                                    <Option key={messageType} value={messageType}>
+                                        {messageType}
                                     </Option>
                                 ))}
                             </Select>
                         </Form.Item>
-                    )}
 
-                    <Form.Item>
-                        <TextArea rows={5} value={response} onChange={(e) => setResponse(e.target.value)} />
-                    </Form.Item>
+                        {selectedMessageType && (
+                            <Form.Item label="Canned Message">
+                                <Select
+                                    value={selectedMessage}
+                                    onChange={handleSelectedMessageChange}
+                                >
+                                    <Option value="">Select a message</Option>
+                                    {CannedMessage[selectedMessageType].map((message, index) => (
+                                        <Option key={index} value={message}>
+                                            {message}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        )}
+
+                        <Form.Item>
+                            <TextArea rows={5} value={response} onChange={(e) => setResponse(e.target.value)}/>
+                        </Form.Item>
 
 
-                    <Form.Item>
-                        <Button type="primary" onClick={sendResponse}>
-                            Send
-                        </Button>
-                    </Form.Item>
-                </Form>
+                        <Form.Item>
+                            <Button type="primary" onClick={sendResponse}>
+                                Send
+                            </Button>
+                        </Form.Item>
+                    </Form>
 
-            </Modal>
-            <header>
-                <MDBNavbar  expand='lg' light bgColor='light'>
-                    <MDBContainer fluid>
-                        <MDBNavbarBrand href='#'>Branch International</MDBNavbarBrand>
-                        <MDBNavbarNav right fullWidth={false} className='mb-2 mb-lg-0'>
-                            <MDBNavbarItem right className='me-3 me-lg-0'>
-                                <MDBNavbarLink href='/'>
-                                    <MDBIcon fas icon="sign-out-alt" />
-                                </MDBNavbarLink>
-                            </MDBNavbarItem>
+                </Modal>
+                <header>
+                    <MDBNavbar expand='lg' light bgColor='light'>
+                        <MDBContainer fluid>
+                            <MDBNavbarBrand href='#'>Branch International</MDBNavbarBrand>
+                            <MDBNavbarNav right fullWidth={false} className='mb-2 mb-lg-0'>
+                                <MDBNavbarItem right className='me-3 me-lg-0'>
+                                    <MDBNavbarLink href='/'>
+                                        <MDBIcon fas icon="sign-out-alt"/>
+                                    </MDBNavbarLink>
+                                </MDBNavbarItem>
 
-                        </MDBNavbarNav>
-                    </MDBContainer>
-                </MDBNavbar>
+                            </MDBNavbarNav>
+                        </MDBContainer>
+                    </MDBNavbar>
 
-                <div className='text-center' style={{
-                    padding:"2%"
-                }}>
+                    <div className='text-center' style={{
+                        padding: "2%"
+                    }}>
 
-                </div>
-            </header>
-            <MDBContainer fluid>
-                {loading ? ( // Conditionally render the loader spinner
-                    <div className='text-center' style={{ paddingTop: "25px" }}>
-                        <MDBSpinner grow color='primary' />
                     </div>
-                ) : (
-                    <>
+                </header>
+                <MDBContainer fluid>
+                    {loading ? ( // Conditionally render the loader spinner
+                        <div className='text-center' style={{paddingTop: "25px"}}>
+                            <MDBSpinner grow color='primary'/>
+                        </div>
+                    ) : (
+                        <>
 
-            <div style={{padding:"0 5% 0 5%"}}>
-                <div style={{width :"50%"}}>
-                    <MDBInput label='Search' id='typeText' type='text' onChange={(e) => handleSearch(e.target.value)}/>
-                </div>
-                    <Table
-                        columns={columns}
-                        dataSource={[...message]}
-                        style={{ paddingTop: "25px" }}
-                    />
-            </div>
-                    </>
+                            <div style={{padding: "0 5% 0 5%"}}>
+                                <div style={{width: "50%"}}>
+                                    <MDBInput label='Search' id='typeText' type='text'
+                                              onChange={(e) => handleSearch(e.target.value)}/>
+                                </div>
+                                <Table
+                                    columns={columns}
+                                    dataSource={[...message]}
+                                    style={{paddingTop: "25px"}}
+                                />
+                            </div>
+                        </>
                     )}
-            </MDBContainer>
+                </MDBContainer>
 
-        </div>
+            </div>
+            }
+        </>
     )
 }
 

@@ -15,10 +15,8 @@ import {
     MDBIcon,
     MDBInput,MDBBtn,MDBSpinner
 } from 'mdb-react-ui-kit';
-import {Table, Modal, Button, Form, Input} from 'antd';
+import {Table, Modal, Button, Form, Input ,Tag} from 'antd';
 const { TextArea } = Input;
-const socket = io.connect('http://localhost:5000');
-
 
 
 const Client = () => {
@@ -42,6 +40,9 @@ const Client = () => {
             dataIndex: 'priority',
             key: 'priority',
             width: 100,
+            render:(text, record) => <>
+                {record.priority === '3' ? <Tag color="success">Low</Tag> : record.priority === '2' ? <Tag color="warning">Medium</Tag> : <Tag color="error">High</Tag>}
+            </>
         },
         {
             title: 'Action',
@@ -54,7 +55,7 @@ const Client = () => {
                 View Message/Query
             </MDBBtn><MDBBtn color='link' rounded size='sm' onClick={()=>{
                 showModal2(record);}
-            }>>
+            }>
                 Send/FullFill Response
             </MDBBtn></>,
         },
@@ -131,7 +132,7 @@ const Client = () => {
 
 
     useEffect(() =>{
-
+        const socket = io.connect('http://localhost:5000');
         axios.get(`http://localhost:5000/getMessages/${agentId}`).then((res) => {
             setmessage(res.data.messages);
             setOriginalMessages(res.data.messages);
@@ -141,10 +142,14 @@ const Client = () => {
         })
         socket.emit('agentOnline', agentId);
         socket.on('messageAssigned', (msg) => {
+            if(message.find((message) => message._id === msg._id)) return;
             setmessage((prevMessages) => [...prevMessages, msg]);
             setOriginalMessages((prevMessages) => [...prevMessages, msg]);
         })
-       
+        return () => {
+            socket.disconnect()
+        };
+
     },[])
     const handleSearch = (value) => {
         const searchText = value.toLowerCase();
@@ -199,7 +204,7 @@ const Client = () => {
                         <MDBNavbarBrand href='#'>Branch International</MDBNavbarBrand>
                         <MDBNavbarNav right fullWidth={false} className='mb-2 mb-lg-0'>
                             <MDBNavbarItem right className='me-3 me-lg-0'>
-                                <MDBNavbarLink href='#'>
+                                <MDBNavbarLink href='/'>
                                     <MDBIcon fas icon="sign-out-alt" />
                                 </MDBNavbarLink>
                             </MDBNavbarItem>

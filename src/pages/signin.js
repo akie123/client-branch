@@ -18,22 +18,16 @@ const onFinishFailed = (errorInfo) => {
 export  default function Signin() {
     return (
         <div>
+            <header>
+                <MDBNavbar  expand='lg' light bgColor='light'>
+                    <MDBContainer fluid>
+                        <MDBNavbarBrand href='#'>Branch International</MDBNavbarBrand>
+                    </MDBContainer>
+                </MDBNavbar>
+
+            </header>
             <MDBContainer fluid>
-                <header>
-                    <MDBNavbar  expand='lg' light bgColor='light'>
-                        <MDBContainer fluid>
-                            <MDBNavbarBrand href='#'>Branch International</MDBNavbarBrand>
-                        </MDBContainer>
-                    </MDBNavbar>
-
-                    <div className='text-center' style={{
-                        padding:"2%"
-                    }}>
-                        {/*<h2 className='mb-3'>Welcome Back!</h2>*/}
-                    </div>
-                </header>
-
-            <div style={{textAlign:"center",margin:"auto", width: "50%", paddingTop: "5%"}}>
+            <div style={{textAlign:"center",margin:"auto", width: "50%", paddingTop: "3%"}}>
                 <h1>Agent Login</h1>
                 <br/>
                 <br/>
@@ -56,7 +50,7 @@ export  default function Signin() {
                     autoComplete="off"
                 >
                     <Form.Item
-                        label="Username"
+                        label="Agent ID"
                         name="username"
                         rules={[
                             {
@@ -76,7 +70,7 @@ export  default function Signin() {
                         }}
                     >
                         <Button type="primary" htmlType="submit">
-                            Submit
+                            Login
                         </Button>
                     </Form.Item>
                 </Form>

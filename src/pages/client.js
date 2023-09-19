@@ -52,11 +52,11 @@ const Client = () => {
             render: (text, record) =>  <><MDBBtn color='link' rounded size='sm' onClick={()=>{
                 showModal1(record);}
             }>
-                View Message/Query
+                View Message
             </MDBBtn><MDBBtn color='link' rounded size='sm' onClick={()=>{
                 showModal2(record);}
             }>
-                Send/FullFill Response
+                Send Response
             </MDBBtn></>,
         },
     ];
@@ -117,6 +117,8 @@ const Client = () => {
                 });
             setResponse('');
             setMsgId('');
+            setSelectedMessage("");
+            setSelectedMessageType("");
             setIsModalOpen2(false);
         }
     };
@@ -176,7 +178,7 @@ const Client = () => {
             <Modal title="Message/Query" open={isModalOpen1}  okButtonProps={{hidden:true}} cancelButtonProps={{hidden:true}}   onCancel={handleCancel1} width={1000} bodyStyle={{height:"250px"}}>
                 <p style={{paddingTop:"10px"}}>{msg}</p>
             </Modal>
-            <Modal title="Message/Query" open={isModalOpen2}  okButtonProps={{hidden:true}} cancelButtonProps={{hidden:true}}   onCancel={handleCancel1} width={700} bodyStyle={{height:"350px"}}>
+            <Modal title="Respond Message/Query" open={isModalOpen2}  okButtonProps={{hidden:true}} cancelButtonProps={{hidden:true}}   onCancel={handleCancel1} width={700} bodyStyle={{height:"350px"}}>
                <br/>
                 <Form
                     name="basic"
@@ -231,13 +233,6 @@ const Client = () => {
                 </Form>
 
             </Modal>
-            <MDBContainer fluid>
-                {loading ? ( // Conditionally render the loader spinner
-                    <div className='text-center' style={{ paddingTop: "25px" }}>
-                        <MDBSpinner grow color='primary' />
-                    </div>
-                ) : (
-                    <>
             <header>
                 <MDBNavbar  expand='lg' light bgColor='light'>
                     <MDBContainer fluid>
@@ -259,6 +254,14 @@ const Client = () => {
 
                 </div>
             </header>
+            <MDBContainer fluid>
+                {loading ? ( // Conditionally render the loader spinner
+                    <div className='text-center' style={{ paddingTop: "25px" }}>
+                        <MDBSpinner grow color='primary' />
+                    </div>
+                ) : (
+                    <>
+
             <div style={{padding:"0 5% 0 5%"}}>
                 <div style={{width :"50%"}}>
                     <MDBInput label='Search' id='typeText' type='text' onChange={(e) => handleSearch(e.target.value)}/>

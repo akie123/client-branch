@@ -1,3 +1,4 @@
+
 import React, {useEffect, useState} from "react"
 import io from 'socket.io-client';
 import axios from 'axios';
@@ -99,7 +100,7 @@ const Client = () => {
     const sendResponse = () => {
         if (msgId && response) {
 
-            axios.post('http://localhost:5000/response', {
+            axios.post(`${process.env.REACT_APP_SERVER_URL}/response`, {
                 messageId: msgId,
                 response: response,
             })
@@ -149,8 +150,9 @@ const Client = () => {
 
 
     useEffect(() => {
-        const socket = io.connect('http://localhost:5000');
-        axios.get(`http://localhost:5000/getMessages/${agentId}`).then((res) => {
+        console.log(`${process.env.REACT_APP_SERVER_URL}`)
+         const socket = io.connect( `${process.env.REACT_APP_SERVER_URL}`);
+        axios.get(`${process.env.REACT_APP_SERVER_URL}/getMessages/${agentId}`).then((res) => {
             setmessage(res.data.messages);
             setOriginalMessages(res.data.messages);
             setLoading(false);

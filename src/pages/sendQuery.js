@@ -10,7 +10,7 @@ export default function SendQuery() {
 
     const onFinish = (values) => {
 
-        axios.post('http://localhost:5000/message', values).then(
+        axios.post(`${process.env.REACT_APP_SERVER_URL}/message`, values).then(
             (response) => {
                 console.log(response);
                 Swal.fire({

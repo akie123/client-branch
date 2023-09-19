@@ -1,25 +1,27 @@
-import React from "react"
+import React, {useEffect, useState} from "react"
 import io from 'socket.io-client';
 import axios from 'axios';
 import Swal from 'sweetalert2'
 import CannedMessage from "./cannedMsg"
-import { useState, useEffect } from 'react';
 import {
-    MDBNavbar,
-    MDBNavbarNav,
-    MDBNavbarItem,
+    MDBBtn,
     MDBContainer,
-    MDBNavbarLink,
-    MDBNavbarBrand,
     MDBIcon,
-    MDBInput,MDBBtn,MDBSpinner
+    MDBInput,
+    MDBNavbar,
+    MDBNavbarBrand,
+    MDBNavbarItem,
+    MDBNavbarLink,
+    MDBNavbarNav,
+    MDBSpinner
 } from 'mdb-react-ui-kit';
-import {Table, Modal, Button, Form, Input ,Tag, Select ,Result} from 'antd';
-const { TextArea } = Input;
-const { Option } = Select;
+import {Button, Form, Input, Modal, Result, Select, Table, Tag} from 'antd';
 
+const {TextArea} = Input;
+const {Option} = Select;
 
 const Client = () => {
+    // Define columns for the message table
     const columns = [
         {
             title: 'Id',
@@ -40,8 +42,9 @@ const Client = () => {
             dataIndex: 'priority',
             key: 'priority',
             width: 100,
-            render:(text, record) => <>
-                {record.priority === '3' ? <Tag color="success">Low</Tag> : record.priority === '2' ? <Tag color="warning">Medium</Tag> : <Tag color="error">High</Tag>}
+            render: (text, record) => <>
+                {record.priority === '3' ? <Tag color="success">Low</Tag> : record.priority === '2' ?
+                    <Tag color="warning">Medium</Tag> : <Tag color="error">High</Tag>}
             </>
         },
         {
@@ -49,27 +52,29 @@ const Client = () => {
             key: 'operation',
             fixed: 'right',
             width: 100,
-            render: (text, record) =>  <><MDBBtn color='link' rounded size='sm' onClick={()=>{
-                showModal1(record);}
+            render: (text, record) => <><MDBBtn color='link' rounded size='sm' onClick={() => {
+                showModal1(record);
+            }
             }>
                 View Message
-            </MDBBtn><MDBBtn color='link' rounded size='sm' onClick={()=>{
-                showModal2(record);}
+            </MDBBtn><MDBBtn color='link' rounded size='sm' onClick={() => {
+                showModal2(record);
+            }
             }>
                 Send Response
             </MDBBtn></>,
         },
     ];
 
-    const [agentId,setagentId] = useState(localStorage.getItem("agentId"));
-    const [message,setmessage] = useState([]);
+    const [agentId, setagentId] = useState(localStorage.getItem("agentId"));
+    const [message, setmessage] = useState([]);
     const [originalMessages, setOriginalMessages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen1, setIsModalOpen1] = useState(false);
     const [isModalOpen2, setIsModalOpen2] = useState(false);
     const [msg, setMsg] = useState('');
     const [response, setResponse] = useState('');
-    const [msgId,setMsgId] = useState('');
+    const [msgId, setMsgId] = useState('');
     const [selectedMessageType, setSelectedMessageType] = useState("");
     const [selectedMessage, setSelectedMessage] = useState("");
 
@@ -124,10 +129,9 @@ const Client = () => {
     };
 
 
-
     const handleDelete = (messageId) => {
         // Filter out the deleted message from both message and originalMessages states
-        const updatedMessages = message.filter((msg) => msg._id!== messageId);
+        const updatedMessages = message.filter((msg) => msg._id !== messageId);
         const updatedOriginalMessages = originalMessages.filter((msg) => msg._id !== messageId);
 
         setmessage(updatedMessages);
@@ -144,18 +148,18 @@ const Client = () => {
     };
 
 
-    useEffect(() =>{
+    useEffect(() => {
         const socket = io.connect('http://localhost:5000');
         axios.get(`http://localhost:5000/getMessages/${agentId}`).then((res) => {
             setmessage(res.data.messages);
             setOriginalMessages(res.data.messages);
             setLoading(false);
-        }).catch((err) => { 
+        }).catch((err) => {
             console.error('Error fetching messages:', err);
         })
         socket.emit('agentOnline', agentId);
         socket.on('messageAssigned', (msg) => {
-            if(message.find((message) => message._id === msg._id)) return;
+            if (message.find((message) => message._id === msg._id)) return;
             setmessage((prevMessages) => [...prevMessages, msg]);
             setOriginalMessages((prevMessages) => [...prevMessages, msg]);
         })
@@ -163,7 +167,7 @@ const Client = () => {
             socket.disconnect()
         };
 
-    },[])
+    }, [])
     const handleSearch = (value) => {
         const searchText = value.toLowerCase();
         const filteredMessages = originalMessages.filter((msg) => {
@@ -175,11 +179,11 @@ const Client = () => {
     };
     return (
         <>
-            { agentId === null && <Result
+            {agentId === null && <Result
                 status="403"
                 title="403"
                 subTitle="Sorry, you are not authorized to access this page."
-                extra={<Button type="primary" onClick={()=>{
+                extra={<Button type="primary" onClick={() => {
                     window.location.href = "/";
                 }}>Back Home</Button>}
             />}

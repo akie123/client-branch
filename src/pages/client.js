@@ -36,6 +36,7 @@ const Client = () => {
             width: 200,
             dataIndex: 'message',
             key: 'message',
+            ellipsis: true,
 
         },
         {
@@ -52,7 +53,7 @@ const Client = () => {
             title: 'Action',
             key: 'operation',
             fixed: 'right',
-            width: 100,
+            width: 150,
             render: (text, record) => <><MDBBtn color='link' rounded size='sm' onClick={() => {
                 showModal1(record);
             }
